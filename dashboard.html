@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habits · xmzr</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep:    #0d1117;
+    --bg-card:    #161b22;
+    --bg-elevated:#1c2128;
+    --border:     #30363d;
+    --text-primary:   #e6edf3;
+    --text-secondary: #8b949e;
+    --text-tertiary:  #6e7681;
+    --accent-blue:    #58a6ff;
+    --accent-green:   #3fb950;
+    --accent-orange:  #d29922;
+    --accent-purple:  #a371f7;
+    --radius: 8px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .header-brand {
+    font-weight: 600; font-size: 15px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .header-brand svg { width: 20px; height: 20px; }
+  .header-date { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+
+  .container { max-width: 880px; margin: 0 auto; padding: 32px 24px 48px; }
+
+  /* Hero stats */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px; margin-bottom: 28px;
+  }
+  .hero-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px; text-align: center;
+    transition: border-color 0.15s;
+  }
+  .hero-stat:hover { border-color: rgba(255,255,255,0.08); }
+  .hero-stat-value {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.5px;
+    line-height: 1; margin-bottom: 4px;
+  }
+  .hero-stat-value.c-blue   { color: var(--accent-blue); }
+  .hero-stat-value.c-green  { color: var(--accent-green); }
+  .hero-stat-value.c-purple { color: var(--accent-purple); }
+  .hero-stat-value.c-orange { color: var(--accent-orange); }
+  .hero-stat-label {
+    font-size: 11px; font-weight: 500; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 13px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 12px; padding-left: 4px;
+  }
+
+  /* ── Card (shared between GitHub + habits) ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .card:hover {
+    border-color: rgba(255,255,255,0.08);
+  }
+  .card-accent {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .card-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .card-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+  }
+  .card-icon {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .card-title {
+    font-size: 15px; font-weight: 600;
+  }
+  .card-title .sub { color: var(--text-secondary); font-weight: 400; }
+  .card-badge {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 11px; font-weight: 600; padding: 3px 12px;
+    border-radius: 20px; letter-spacing: 0.2px;
+  }
+  .card-badge.done {
+    background: rgba(63,185,80,0.15); color: var(--accent-green);
+    border: 1px solid rgba(63,185,80,0.3);
+  }
+  .card-badge.miss {
+    background: rgba(210,153,34,0.12); color: var(--accent-orange);
+    border: 1px solid rgba(210,153,34,0.25);
+  }
+
+  /* Stats row inside cards */
+  .card-stats {
+    display: flex; gap: 24px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .card-stat-val {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.3px;
+    line-height: 1.2;
+  }
+  .card-stat-val.green  { color: var(--accent-green); }
+  .card-stat-val.blue   { color: var(--accent-blue); }
+  .card-stat-val.purple { color: var(--accent-purple); }
+  .card-stat-val.orange { color: var(--accent-orange); }
+  .card-stat-lbl {
+    font-size: 11px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  /* Heatmap inside cards */
+  .card-heatmap {
+    display: flex; gap: 3px; flex-wrap: wrap;
+  }
+  .hm-cell {
+    width: 11px; height: 11px; border-radius: 2px;
+    transition: transform 0.1s;
+  }
+  .hm-cell:hover { transform: scale(1.5); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 40px 24px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .empty-state-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state h2 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .empty-state p  { font-size: 13px; color: var(--text-secondary); max-width: 400px; margin: 0 auto; }
+
+  .footer {
+    text-align: center; padding: 16px;
+    font-size: 11px; color: var(--text-tertiary);
+  }
+  .loading, .error { text-align: center; padding: 32px; }
+  .loading { color: var(--text-tertiary); }
+  .error   { color: #f85149; }
+  .hidden  { display: none; }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid var(--border); border-top-color: var(--accent-blue);
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"/></svg>
+    Habits
+  </div>
+  <div class="header-date" id="header-date"></div>
+</header>
+
+<div class="container">
+  <div class="hero-stats" id="hero-stats"></div>
+
+  <div id="github-section">
+    <div class="loading"><span class="spinner"></span> Loading GitHub...</div>
+  </div>
+
+  <div class="section-title">Habits</div>
+  <div id="habits-container"><div class="loading"><span class="spinner"></span> Loading habits...</div></div>
+  <div class="empty-state hidden" id="empty-state">
+    <div class="empty-state-icon">📋</div>
+    <h2>No habits yet</h2>
+    <p>Create habits in the TickTick app — they'll appear here automatically.</p>
+  </div>
+</div>
+
+<div class="footer">Synced from TickTick &amp; GitHub · Auto-refreshes every 5 min</div>
+
+<script>
+const API_HABITS = '/api/habits';
+const API_GITHUB = '/api/github';
+
+const icon = (name) => {
+  const m = {
+    'read':'📖','exercise':'🏃','meditate':'🧘','study':'📚','water':'💧',
+    'sleep':'😴','walk':'🚶','journal':'✍️','guitar':'🎸','run':'🏃',
+    'yoga':'🧘','gym':'🏋️','piano':'🎹','stretch':'🧘','write':'✍️',
+    'draw':'🎨','cook':'🍳','clean':'🧹','bike':'🚲','swim':'🏊',
+    'climb':'🧗','boxing':'🥊','pray':'🙏','fast':'🌅'
+  };
+  const n = name.toLowerCase();
+  for (const [k,v] of Object.entries(m)) if (n.includes(k)) return v;
+  return '✅';
+};
+
+const habitColor = (h,i) => {
+  const c = ['#58a6ff','#3fb950','#d29922','#a371f7','#79c0ff','#7ee787'];
+  return h.color || c[i % c.length];
+};
+
+const fmtDate = (s) => {
+  const [y,m,d] = [s.slice(0,4), s.slice(4,6), s.slice(6,8)];
+  return new Date(y, m-1, d).toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'});
+};
+
+const ghColor = (count) => {
+  if (count === 0) return '#161b22';
+  if (count <= 2)  return '#0e4429';
+  if (count <= 5)  return '#006d32';
+  if (count <= 10) return '#26a641';
+  return '#39d353';
+};
+
+const habitHeatColor = (ok) => ok ? '#3fb950' : '#1c2128';
+
+const heatmap = (dates, type) => {
+  let h = '<div class="card-heatmap">';
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const s = parseInt(d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'));
+    const ok = dates.has(s);
+    h += `<div class="hm-cell" style="background:${type==='github' ? ghColor(dates.get(s)||0) : habitHeatColor(ok)}" title="${fmtDate(String(s))}: ${ok ? (type==='github' ? dates.get(s)+' commits' : 'Done') : 'Missed'}"></div>`;
+  }
+  return h + '</div>';
+};
+
+// ── GitHub ─────────────────────────────────────────────────────
+
+async function loadGitHub() {
+  const el = document.getElementById('github-section');
+  try {
+    const r = await fetch(API_GITHUB);
+    if (!r.ok) throw new Error('GitHub API error');
+    renderGitHub(await r.json());
+  } catch(e) {
+    el.innerHTML = `<div class="error">GitHub: ${e.message}</div>`;
+  }
+}
+
+function renderGitHub(d) {
+  const last30 = d.last30 || [];
+  // Build a map of date→count for heatmap
+  const dateMap = new Map();
+  for (const day of last30) dateMap.set(parseInt(day.date.replace(/-/g,'')), day.count);
+
+  document.getElementById('github-section').innerHTML = `
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--accent-green),var(--accent-blue))"></div>
+      <div class="card-header">
+        <img class="card-avatar" src="https://github.com/xamzar.png" alt="">
+        <div><div class="card-title">xamzar<span class="sub"> / GitHub</span></div></div>
+      </div>
+      <div class="card-stats">
+        <div><div class="card-stat-val green">${d.today.count}</div><div class="card-stat-lbl">Commits today</div></div>
+        <div><div class="card-stat-val blue">${d.streak}d</div><div class="card-stat-lbl">Streak</div></div>
+        <div><div class="card-stat-val purple">${d.commits_7d}</div><div class="card-stat-lbl">Last 7 days</div></div>
+        <div><div class="card-stat-val">${d.total}</div><div class="card-stat-lbl">This year</div></div>
+      </div>
+      ${heatmap(dateMap, 'github')}
+    </div>
+  `;
+}
+
+// ── Habits ─────────────────────────────────────────────────────
+
+async function loadHabits() {
+  try {
+    const r = await fetch(API_HABITS);
+    if (!r.ok) throw new Error('API ' + r.status);
+    renderHabits(await r.json());
+  } catch(e) {
+    document.getElementById('habits-container').innerHTML = `<div class="error">Failed: ${e.message}</div>`;
+  }
+}
+
+function renderHabits(data) {
+  const habits = data.habits, today = data.today;
+  document.getElementById('header-date').textContent = fmtDate(String(today));
+
+  const N = habits.length;
+  const done = habits.filter(h=>h.checked_today).length;
+  const pct = N ? Math.round(done/N*100) : 0;
+  const bestS = N ? Math.max(...habits.map(h=>h.streak)) : 0;
+  const totalC = habits.reduce((s,h)=>s+h.total_checkins,0);
+
+  document.getElementById('hero-stats').innerHTML = `
+    <div class="hero-stat">
+      <div class="hero-stat-value c-green">${done}/${N}</div>
+      <div class="hero-stat-label">Done today</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value c-blue">${pct}%</div>
+      <div class="hero-stat-label">Completion</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value c-orange">${bestS}d</div>
+      <div class="hero-stat-label">Best streak</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value c-purple">${totalC}</div>
+      <div class="hero-stat-label">Total check-ins</div>
+    </div>
+  `;
+
+  const container = document.getElementById('habits-container');
+  const empty = document.getElementById('empty-state');
+
+  if (!N) { container.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  container.innerHTML = habits.map((h,i)=>{
+    const col = habitColor(h,i);
+    const dates = new Set(h._checkin_dates||[]);
+
+    return `
+    <div class="card">
+      <div class="card-accent" style="background:${col}"></div>
+      <div class="card-header">
+        <div class="card-icon" style="background:${col}18; color:${col}">${icon(h.name)}</div>
+        <div>
+          <div class="card-title">${h.name}${h.goal>1 ? `<span class="sub"> · Goal ${h.goal}${h.unit?' '+h.unit:''}</span>` : ''}</div>
+        </div>
+        <span class="card-badge ${h.checked_today?'done':'miss'}">${h.checked_today?'✓ Done':'—'}</span>
+      </div>
+      <div class="card-stats">
+        <div><div class="card-stat-val orange">${h.streak}d</div><div class="card-stat-lbl">Streak</div></div>
+        <div><div class="card-stat-val green">${h.completion_7d}/7</div><div class="card-stat-lbl">Last 7 days</div></div>
+        <div><div class="card-stat-val blue">${h.completion_30d}/30</div><div class="card-stat-lbl">Last 30 days</div></div>
+        <div><div class="card-stat-val purple">${h.total_checkins}</div><div class="card-stat-lbl">Total</div></div>
+      </div>
+      ${heatmap(dates, 'habit')}
+    </div>`;
+  }).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────
+loadHabits();
+loadGitHub();
+setInterval(loadHabits, 5*60*1000);
+setInterval(loadGitHub, 15*60*1000);
+</script>
+</body>
+</html>
